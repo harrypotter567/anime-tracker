@@ -4,14 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anime Tracker · personal shelf</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
         body {
             background: #f7f3f0;
             background-image: radial-gradient(circle at 10% 20%, #ffe6d5 0%, #f7f3f0 70%);
@@ -21,805 +16,397 @@
             flex-direction: column;
             align-items: center;
         }
-
         .app-container {
-            max-width: 1300px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.75);
+            max-width: 1300px; width: 100%;
+            background: rgba(255,255,255,0.75);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 3rem;
             padding: 2rem 2rem 2.5rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 6px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(255, 240, 230, 0.7);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,240,230,0.7);
         }
-
-        h1 {
-            font-size: 2.4rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            color: #2e241f;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 0.25rem;
-        }
-
-        h1 span {
-            background: #e9d6c9;
-            font-size: 1.8rem;
-            padding: 0 10px;
-            border-radius: 40px;
-            line-height: 1.4;
-        }
-
-        .subhead {
-            color: #735f54;
-            margin-bottom: 2rem;
-            font-size: 1.05rem;
-            font-weight: 400;
-            border-left: 4px solid #d9b8a4;
-            padding-left: 1rem;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.8rem;
-        }
-
-        @media (max-width: 750px) {
-            .grid-layout {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            .app-container {
-                padding: 1.8rem 1.2rem;
-            }
-            h1 {
-                font-size: 1.9rem;
-            }
-        }
-
-        .column {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
+        h1 { font-size: 2.4rem; font-weight: 600; color: #2e241f; display: flex; align-items: center; gap: 10px; margin-bottom: 0.25rem; }
+        h1 span { background: #e9d6c9; font-size: 1.8rem; padding: 0 10px; border-radius: 40px; }
+        .subhead { color: #735f54; margin-bottom: 2rem; font-size: 1.05rem; border-left: 4px solid #d9b8a4; padding-left: 1rem; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8rem; }
+        @media (max-width: 750px) { .grid-layout { grid-template-columns: 1fr; gap: 2rem; } .app-container { padding: 1.8rem 1.2rem; } h1 { font-size: 1.9rem; } }
+        .column { display: flex; flex-direction: column; gap: 1.5rem; }
         .card {
-            background: #ffffffdb;
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            border-radius: 2rem;
-            padding: 1.5rem 1.5rem 1.8rem;
-            box-shadow: 0 12px 24px -8px rgba(80, 60, 50, 0.12);
+            background: #ffffffdb; backdrop-filter: blur(6px);
+            border-radius: 2rem; padding: 1.5rem 1.5rem 1.8rem;
+            box-shadow: 0 12px 24px -8px rgba(80,60,50,0.12);
             border: 1px solid #fff4ec;
-            transition: transform 0.2s ease;
         }
-
-        .card:hover {
-            transform: translateY(-3px);
-        }
-
-        .card h2 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: #3a2c24;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: -0.2px;
-        }
-
-        .card h2 i {
-            font-style: normal;
-            font-size: 1.5rem;
-        }
-
-        .add-form {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
+        .card h2 { font-size: 1.4rem; font-weight: 600; color: #3a2c24; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px; }
+        .card h2 i { font-style: normal; font-size: 1.5rem; }
+        .add-form { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
         .add-form input {
-            flex: 1;
-            padding: 0.8rem 1rem;
-            border-radius: 50px;
-            border: 1px solid #e3d9d1;
-            background: #fefcfb;
-            font-size: 0.95rem;
-            outline: none;
-            transition: all 0.2s;
-            min-width: 140px;
-            color: #2e241f;
+            flex: 1; padding: 0.8rem 1rem; border-radius: 50px;
+            border: 1px solid #e3d9d1; background: #fefcfb; font-size: 0.95rem; outline: none;
+            min-width: 140px; color: #2e241f;
         }
-
-        .add-form input:focus {
-            border-color: #c6a38b;
-            box-shadow: 0 0 0 4px rgba(198, 163, 139, 0.2);
-            background: white;
-        }
-
+        .add-form input:focus { border-color: #c6a38b; box-shadow: 0 0 0 4px rgba(198,163,139,0.2); background: white; }
         .add-form button {
-            background: #2e241f;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            font-weight: 500;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+            background: #2e241f; color: white; border: none;
+            padding: 0.8rem 1.5rem; border-radius: 50px;
+            font-weight: 500; font-size: 0.95rem; cursor: pointer;
             white-space: nowrap;
         }
-
-        .add-form button:hover {
-            background: #4a382f;
-            transform: scale(1.02);
-        }
-
-        .add-form button:active {
-            transform: scale(0.98);
-        }
-
-        .anime-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 320px;
-            overflow-y: auto;
-            padding-right: 6px;
-            scrollbar-width: thin;
-            scrollbar-color: #d9c6b8 #f3ede8;
-        }
-
-        .anime-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .anime-list::-webkit-scrollbar-track {
-            background: #f3ede8;
-            border-radius: 12px;
-        }
-
-        .anime-list::-webkit-scrollbar-thumb {
-            background: #d9c6b8;
-            border-radius: 12px;
-        }
-
+        .add-form button:hover { background: #4a382f; }
+        .anime-list { list-style: none; display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; padding-right: 6px; }
         .anime-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.85rem 1.2rem;
-            background: #fcf8f5;
-            border-radius: 60px;
-            border: 1px solid #f0e4dc;
-            transition: all 0.15s;
-            font-size: 0.98rem;
-            color: #2b221e;
-            font-weight: 500;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.85rem 1.2rem; background: #fcf8f5;
+            border-radius: 60px; border: 1px solid #f0e4dc;
+            font-size: 0.98rem; color: #2b221e; font-weight: 500;
         }
-
-        .anime-item:hover {
-            background: #ffffff;
-            border-color: #d9c2b2;
-            box-shadow: 0 4px 10px rgba(160, 120, 100, 0.08);
-        }
-
-        .item-title {
-            word-break: break-word;
-            padding-right: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .item-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
+        .item-title { word-break: break-word; padding-right: 10px; }
+        .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
         .icon-btn {
-            background: transparent;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.15s;
-            color: #5f4d42;
-            background: #f1e7e0;
-            line-height: 1;
+            background: #f1e7e0; border: none; width: 32px; height: 32px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; color: #5f4d42; line-height: 1;
         }
-
-        .icon-btn:hover {
-            background: #e0cfc2;
-            color: #2e241f;
-            transform: scale(1.08);
-        }
-
-        .icon-btn.watched-btn {
-            background: #d9e6d4;
-            color: #32643b;
-        }
-
-        .icon-btn.watched-btn:hover {
-            background: #bdd6b4;
-        }
-
-        .icon-btn.delete-btn {
-            background: #f3dedb;
-            color: #a1453c;
-        }
-
-        .icon-btn.delete-btn:hover {
-            background: #e9c9c4;
-        }
-
-        .empty-message {
-            color: #a28d80;
-            font-style: italic;
-            padding: 0.8rem 0.5rem;
-            text-align: center;
-            background: #faf6f2;
-            border-radius: 40px;
-            font-size: 0.95rem;
-            border: 1px dashed #ddd0c6;
-        }
-
-        .suggestions-section {
-            background: #f4ede8;
-            border-radius: 1.8rem;
-            padding: 1.4rem 1.5rem 1.7rem;
-            border: 1px solid #e6d7cd;
-            box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.8);
-            margin-top: 0.4rem;
-        }
-
-        .suggestions-section h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #4a3b32;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .suggestion-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
+        .icon-btn:hover { background: #e0cfc2; }
+        .icon-btn.watched-btn { background: #d9e6d4; color: #32643b; }
+        .icon-btn.delete-btn { background: #f3dedb; color: #a1453c; }
+        .empty-message { color: #a28d80; font-style: italic; padding: 0.8rem 0.5rem; text-align: center; background: #faf6f2; border-radius: 40px; font-size: 0.95rem; border: 1px dashed #ddd0c6; }
+        .suggestions-section { background: #f4ede8; border-radius: 1.8rem; padding: 1.4rem 1.5rem 1.7rem; border: 1px solid #e6d7cd; }
+        .suggestions-section h3 { font-size: 1.15rem; font-weight: 600; color: #4a3b32; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+        .suggestion-chips { display: flex; flex-wrap: wrap; gap: 10px; }
         .suggestion-chip {
-            background: white;
-            border: 1px solid #e7d9d0;
-            border-radius: 60px;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #3d2e27;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.15s;
-            cursor: default;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+            background: white; border: 1px solid #e7d9d0;
+            border-radius: 60px; padding: 0.6rem 1.2rem;
+            font-size: 0.9rem; font-weight: 500; color: #3d2e27;
+            display: flex; align-items: center; gap: 8px;
         }
-
         .suggestion-chip .add-suggestion-btn {
-            background: #e9dad0;
-            border: none;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #4f3e35;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.1s;
-            line-height: 1;
-            margin-left: 4px;
+            background: #e9dad0; border: none; width: 26px; height: 26px;
+            border-radius: 50%; font-size: 1rem; font-weight: 600;
+            color: #4f3e35; cursor: pointer; margin-left: 4px;
         }
+        .suggestion-chip .add-suggestion-btn:hover { background: #cbb6a8; }
+        .badge { background: #e9d6c9; border-radius: 20px; font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.7rem; color: #4e3d33; text-transform: uppercase; }
+        .footer-note { margin-top: 2rem; text-align: center; color: #9f8b7e; font-size: 0.85rem; }
 
-        .suggestion-chip .add-suggestion-btn:hover {
-            background: #cbb6a8;
-            color: #1f1612;
-            transform: scale(1.1);
-        }
-
-        .footer-note {
-            margin-top: 2rem;
+        .auth-container {
+            max-width: 420px; margin: 4rem auto; background: white;
+            padding: 2.5rem 2rem; border-radius: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             text-align: center;
-            color: #9f8b7e;
-            font-size: 0.85rem;
-            letter-spacing: 0.2px;
         }
+        .auth-container h2 { color: #2e241f; margin-bottom: 0.5rem; font-size: 1.8rem; }
+        .auth-container p.sub { color: #8b776b; margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .auth-container input {
+            width: 100%; padding: 0.85rem 1rem; margin-bottom: 12px;
+            border-radius: 50px; border: 1px solid #e3d9d1;
+            background: #fefcfb; font-size: 0.95rem; outline: none;
+        }
+        .auth-container input:focus { border-color: #c6a38b; box-shadow: 0 0 0 4px rgba(198,163,139,0.2); }
+        .auth-btn {
+            width: 100%; padding: 0.85rem; margin-bottom: 10px;
+            border: none; border-radius: 50px; font-weight: 600;
+            font-size: 0.95rem; cursor: pointer; transition: 0.15s;
+        }
+        .auth-btn.primary { background: #2e241f; color: white; }
+        .auth-btn.primary:hover { background: #4a382f; }
+        .auth-btn.google { background: #fff; color: #2e241f; border: 1px solid #e3d9d1; }
+        .auth-btn.google:hover { background: #faf6f2; }
+        .auth-btn.switch { background: transparent; color: #8b776b; font-size: 0.85rem; }
+        .auth-btn.switch:hover { color: #2e241f; }
+        .auth-error { color: #a1453c; font-size: 0.85rem; margin-top: 10px; min-height: 20px; }
+        .auth-success { color: #32643b; font-size: 0.85rem; margin-top: 10px; }
 
-        .divider {
-            height: 2px;
-            background: linear-gradient(to right, transparent, #e0d2c8, transparent);
-            margin: 0.5rem 0 1rem;
+        .user-bar {
+            display: flex; align-items: center; justify-content: flex-end;
+            gap: 12px; margin-bottom: 1.5rem; padding: 0.5rem 0;
         }
-
-        .badge {
-            background: #e9d6c9;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 0.2rem 0.7rem;
-            color: #4e3d33;
-            letter-spacing: 0.3px;
-            text-transform: uppercase;
+        .user-bar .email { color: #735f54; font-size: 0.9rem; }
+        .user-bar .logout-btn {
+            background: #f3dedb; color: #a1453c; border: none;
+            padding: 0.5rem 1rem; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 500; cursor: pointer;
         }
-
-        .flex-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .user-bar .logout-btn:hover { background: #e9c9c4; }
+        .loading { text-align: center; color: #8b776b; padding: 3rem; font-size: 1.1rem; }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <h1>
-            📺 anime shelf
-            <span>✧</span>
-        </h1>
+
+    <div id="loading-screen" class="loading">Loading...</div>
+
+    <div id="auth-screen" style="display:none;">
+        <div class="auth-container">
+            <h2 id="auth-title">Welcome back 📺</h2>
+            <p class="sub" id="auth-sub">Log in to access your anime shelf</p>
+
+            <input type="email" id="email-input" placeholder="Email" autocomplete="email">
+            <input type="password" id="password-input" placeholder="Password" autocomplete="current-password">
+
+            <button class="auth-btn primary" id="main-auth-btn" onclick="handleAuthSubmit()">Log In</button>
+            <button class="auth-btn google" onclick="signInWithGoogle()">Continue with Google</button>
+            <button class="auth-btn switch" id="switch-mode-btn" onclick="toggleAuthMode()">Don't have an account? Sign up</button>
+
+            <div id="auth-message" class="auth-error"></div>
+        </div>
+    </div>
+
+    <div id="main-app" class="app-container" style="display:none;">
+        <div class="user-bar">
+            <span class="email" id="user-email"></span>
+            <button class="logout-btn" onclick="signOut()">Log Out</button>
+        </div>
+
+        <h1>📺 anime shelf <span>✧</span></h1>
         <div class="subhead">keep track · what you've watched · what to watch next</div>
 
         <div class="grid-layout">
-            <!-- LEFT COLUMN: WATCHED LIST -->
             <div class="column">
                 <div class="card">
-                    <h2>
-                        <i>✅</i> Already watched
-                        <span class="badge" id="watchedCount">0</span>
-                    </h2>
+                    <h2><i>✅</i> Already watched <span class="badge" id="watchedCount">0</span></h2>
                     <div class="add-form">
                         <input type="text" id="watchedInput" placeholder="e.g. Frieren, Jujutsu Kaisen..." autocomplete="off">
                         <button id="addWatchedBtn">+ Add</button>
                     </div>
-                    <ul class="anime-list" id="watchedList">
-                        <!-- Watched items will be injected here -->
-                    </ul>
+                    <ul class="anime-list" id="watchedList"></ul>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: PLAN TO WATCH + SUGGESTIONS -->
             <div class="column">
                 <div class="card">
-                    <h2>
-                        <i>📌</i> Plan to watch
-                        <span class="badge" id="planCount">0</span>
-                    </h2>
+                    <h2><i>📌</i> Plan to watch <span class="badge" id="planCount">0</span></h2>
                     <div class="add-form">
                         <input type="text" id="planInput" placeholder="e.g. Chainsaw Man, Blue Lock..." autocomplete="off">
                         <button id="addPlanBtn">+ Add</button>
                     </div>
-                    <ul class="anime-list" id="planList">
-                        <!-- Plan items will be injected here -->
-                    </ul>
+                    <ul class="anime-list" id="planList"></ul>
                 </div>
 
-                <!-- SUGGESTIONS SECTION -->
                 <div class="suggestions-section">
-                    <h3>
-                        <span>✨</span> Suggestions for you
-                        <span style="font-size: 0.8rem; font-weight: 400; color: #8b776b; margin-left: auto;">click + to add</span>
-                    </h3>
-                    <div class="suggestion-chips" id="suggestionsContainer">
-                        <!-- Suggestion chips will be injected -->
-                    </div>
+                    <h3><span>✨</span> Suggestions for you</h3>
+                    <div class="suggestion-chips" id="suggestionsContainer"></div>
                 </div>
             </div>
         </div>
-        <div class="footer-note">
-            ⏤ your personal anime tracker ⏤
-        </div>
+        <div class="footer-note">⏤ your personal anime tracker ⏤</div>
     </div>
 
     <script>
-        (function() {
-            // ---------- STORAGE KEYS ----------
-            const WATCHED_KEY = 'anime_tracker_watched';
-            const PLAN_KEY = 'anime_tracker_plan';
+        // ============================================
+        // STEP 1: REPLACE THESE TWO LINES WITH YOUR VALUES
+        // ============================================
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
 
-            // ---------- DEFAULT DATA (if nothing stored) ----------
-            const defaultWatched = [
-                { id: 'w1', title: 'Fullmetal Alchemist: Brotherhood' },
-                { id: 'w2', title: 'Steins;Gate' },
-                { id: 'w3', title: 'Demon Slayer' },
-                { id: 'w4', title: 'Spy x Family' }
-            ];
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            const defaultPlan = [
-                { id: 'p1', title: 'Frieren: Beyond Journey\'s End' },
-                { id: 'p2', title: 'Chainsaw Man' },
-                { id: 'p3', title: 'Jujutsu Kaisen Season 2' },
-                { id: 'p4', title: 'Vinland Saga Season 2' }
-            ];
+        let currentUser = null;
+        let animeItems = [];
+        let authMode = 'login';
 
-            // ---------- SUGGESTION POOL (static curated) ----------
-            const SUGGESTION_POOL = [
-                { title: 'Mob Psycho 100', genre: 'action/comedy' },
-                { title: 'Odd Taxi', genre: 'mystery/drama' },
-                { title: 'Cyberpunk: Edgerunners', genre: 'sci-fi/action' },
-                { title: 'Bocchi the Rock!', genre: 'comedy/music' },
-                { title: 'Apothecary Diaries', genre: 'historical/mystery' },
-                { title: 'Dungeon Meshi', genre: 'fantasy/adventure' },
-                { title: 'Blue Eye Samurai', genre: 'action/drama' },
-                { title: 'Pluto', genre: 'sci-fi/thriller' },
-                { title: 'Link Click', genre: 'mystery/supernatural' },
-                { title: 'Heavenly Delusion', genre: 'sci-fi/mystery' }
-            ];
+        const SUGGESTION_POOL = [
+            { title: 'Mob Psycho 100', genre: 'action/comedy' },
+            { title: 'Odd Taxi', genre: 'mystery/drama' },
+            { title: 'Cyberpunk: Edgerunners', genre: 'sci-fi/action' },
+            { title: 'Bocchi the Rock!', genre: 'comedy/music' },
+            { title: 'Apothecary Diaries', genre: 'historical/mystery' },
+            { title: 'Dungeon Meshi', genre: 'fantasy/adventure' },
+            { title: 'Blue Eye Samurai', genre: 'action/drama' },
+            { title: 'Pluto', genre: 'sci-fi/thriller' },
+            { title: 'Link Click', genre: 'mystery/supernatural' },
+            { title: 'Heavenly Delusion', genre: 'sci-fi/mystery' }
+        ];
 
-            // ---------- DATA LAYER ----------
-            let watched = [];
-            let plan = [];
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            const title = document.getElementById('auth-title');
+            const sub = document.getElementById('auth-sub');
+            const btn = document.getElementById('main-auth-btn');
+            const switchBtn = document.getElementById('switch-mode-btn');
+            const msg = document.getElementById('auth-message');
+            msg.textContent = '';
 
-            // Load from localStorage or set defaults
-            function loadData() {
-                const storedWatched = localStorage.getItem(WATCHED_KEY);
-                const storedPlan = localStorage.getItem(PLAN_KEY);
+            if (authMode === 'signup') {
+                title.textContent = 'Create your account ✨';
+                sub.textContent = 'Sign up to start your anime shelf';
+                btn.textContent = 'Sign Up';
+                switchBtn.textContent = 'Already have an account? Log in';
+            } else {
+                title.textContent = 'Welcome back 📺';
+                sub.textContent = 'Log in to access your anime shelf';
+                btn.textContent = 'Log In';
+                switchBtn.textContent = "Don't have an account? Sign up";
+            }
+        }
 
-                if (storedWatched) {
-                    try {
-                        watched = JSON.parse(storedWatched);
-                    } catch (e) {
-                        watched = [...defaultWatched];
-                    }
-                } else {
-                    watched = [...defaultWatched];
+        async function handleAuthSubmit() {
+            const email = document.getElementById('email-input').value.trim();
+            const password = document.getElementById('password-input').value;
+            const msg = document.getElementById('auth-message');
+            msg.textContent = '';
+            msg.className = 'auth-error';
+
+            if (!email || !password) { msg.textContent = 'Please enter email and password.'; return; }
+            if (password.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; return; }
+
+            if (authMode === 'signup') {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) { msg.textContent = error.message; }
+                else if (data.user && !data.session) {
+                    msg.className = 'auth-success';
+                    msg.textContent = 'Check your email to confirm your account!';
                 }
-
-                if (storedPlan) {
-                    try {
-                        plan = JSON.parse(storedPlan);
-                    } catch (e) {
-                        plan = [...defaultPlan];
-                    }
-                } else {
-                    plan = [...defaultPlan];
-                }
-
-                // ensure each has an id (for legacy)
-                watched = watched.map((item, idx) => ({
-                    id: item.id || `w_${Date.now()}_${idx}`,
-                    title: item.title
-                }));
-                plan = plan.map((item, idx) => ({
-                    id: item.id || `p_${Date.now()}_${idx}`,
-                    title: item.title
-                }));
+            } else {
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) msg.textContent = error.message;
             }
+        }
 
-            // Save to localStorage
-            function saveData() {
-                localStorage.setItem(WATCHED_KEY, JSON.stringify(watched));
-                localStorage.setItem(PLAN_KEY, JSON.stringify(plan));
+        async function signInWithGoogle() {
+            const { error } = await supabaseClient.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: window.location.href }
+            });
+            if (error) document.getElementById('auth-message').textContent = error.message;
+        }
+
+        async function signOut() { await supabaseClient.auth.signOut(); }
+
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            document.getElementById('loading-screen').style.display = 'none';
+            currentUser = session?.user || null;
+
+            if (currentUser) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-email').textContent = currentUser.email || '';
+                await loadUserList();
+            } else {
+                document.getElementById('auth-screen').style.display = 'block';
+                document.getElementById('main-app').style.display = 'none';
+                animeItems = [];
             }
+        });
 
-            // ---------- RENDER FUNCTIONS ----------
-            const watchedListEl = document.getElementById('watchedList');
-            const planListEl = document.getElementById('planList');
-            const watchedCountEl = document.getElementById('watchedCount');
-            const planCountEl = document.getElementById('planCount');
-            const suggestionsContainer = document.getElementById('suggestionsContainer');
-
-            // Update counts
-            function updateCounts() {
-                watchedCountEl.textContent = watched.length;
-                planCountEl.textContent = plan.length;
+        (async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            document.getElementById('loading-screen').style.display = 'none';
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-email').textContent = currentUser.email || '';
+                await loadUserList();
+            } else {
+                document.getElementById('auth-screen').style.display = 'block';
             }
-
-            // Render watched list
-            function renderWatched() {
-                if (!watchedListEl) return;
-                if (watched.length === 0) {
-                    watchedListEl.innerHTML = `<div class="empty-message">✨ no anime watched yet — add some!</div>`;
-                    return;
-                }
-                let html = '';
-                watched.forEach(item => {
-                    html += `
-                        <li class="anime-item" data-id="${item.id}">
-                            <span class="item-title">📖 ${escapeHtml(item.title)}</span>
-                            <div class="item-actions">
-                                <button class="icon-btn delete-btn" data-action="delete-watched" data-id="${item.id}" title="Remove">🗑️</button>
-                            </div>
-                        </li>
-                    `;
-                });
-                watchedListEl.innerHTML = html;
-            }
-
-            // Render plan list
-            function renderPlan() {
-                if (!planListEl) return;
-                if (plan.length === 0) {
-                    planListEl.innerHTML = `<div class="empty-message">📭 nothing planned — add what you want to watch</div>`;
-                    return;
-                }
-                let html = '';
-                plan.forEach(item => {
-                    html += `
-                        <li class="anime-item" data-id="${item.id}">
-                            <span class="item-title">⏳ ${escapeHtml(item.title)}</span>
-                            <div class="item-actions">
-                                <button class="icon-btn watched-btn" data-action="move-to-watched" data-id="${item.id}" title="Mark as watched">✅</button>
-                                <button class="icon-btn delete-btn" data-action="delete-plan" data-id="${item.id}" title="Remove">🗑️</button>
-                            </div>
-                        </li>
-                    `;
-                });
-                planListEl.innerHTML = html;
-            }
-
-            // Simple escape
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            // Render suggestions — exclude titles already in watched or plan
-            function renderSuggestions() {
-                if (!suggestionsContainer) return;
-
-                const existingTitles = new Set([
-                    ...watched.map(w => w.title.toLowerCase().trim()),
-                    ...plan.map(p => p.title.toLowerCase().trim())
-                ]);
-
-                const availableSuggestions = SUGGESTION_POOL.filter(
-                    sug => !existingTitles.has(sug.title.toLowerCase().trim())
-                );
-
-                if (availableSuggestions.length === 0) {
-                    suggestionsContainer.innerHTML = `<div class="empty-message" style="width:100%;">🎉 you've added all suggestions!</div>`;
-                    return;
-                }
-
-                let html = '';
-                availableSuggestions.forEach(sug => {
-                    html += `
-                        <div class="suggestion-chip" data-suggestion-title="${escapeHtml(sug.title)}">
-                            <span>${escapeHtml(sug.title)}</span>
-                            <span style="font-size:0.75rem; color:#9a8476; margin-left:4px;">${sug.genre || ''}</span>
-                            <button class="add-suggestion-btn" data-action="add-suggestion" data-title="${escapeHtml(sug.title)}" title="Add to plan">+</button>
-                        </div>
-                    `;
-                });
-                suggestionsContainer.innerHTML = html;
-            }
-
-            // Full render + save
-            function refreshUI() {
-                renderWatched();
-                renderPlan();
-                renderSuggestions();
-                updateCounts();
-                saveData();
-            }
-
-            // ---------- ACTION HANDLERS ----------
-            function addWatched(title) {
-                const trimmed = title.trim();
-                if (!trimmed) return false;
-
-                // avoid exact duplicates in watched
-                const exists = watched.some(item => item.title.toLowerCase() === trimmed.toLowerCase());
-                if (exists) {
-                    alert(`"${trimmed}" is already in your watched list.`);
-                    return false;
-                }
-
-                const newItem = {
-                    id: 'w_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                    title: trimmed
-                };
-                watched.push(newItem);
-                refreshUI();
-                return true;
-            }
-
-            function addPlan(title) {
-                const trimmed = title.trim();
-                if (!trimmed) return false;
-
-                // avoid exact duplicates in plan
-                const existsInPlan = plan.some(item => item.title.toLowerCase() === trimmed.toLowerCase());
-                if (existsInPlan) {
-                    alert(`"${trimmed}" is already in your plan list.`);
-                    return false;
-                }
-                // also check watched? (optional, but better to prevent duplication across lists)
-                const existsInWatched = watched.some(item => item.title.toLowerCase() === trimmed.toLowerCase());
-                if (existsInWatched) {
-                    alert(`"${trimmed}" is already marked as watched. Remove it from watched first, or add a different title.`);
-                    return false;
-                }
-
-                const newItem = {
-                    id: 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                    title: trimmed
-                };
-                plan.push(newItem);
-                refreshUI();
-                return true;
-            }
-
-            function deleteWatched(id) {
-                watched = watched.filter(item => item.id !== id);
-                refreshUI();
-            }
-
-            function deletePlan(id) {
-                plan = plan.filter(item => item.id !== id);
-                refreshUI();
-            }
-
-            function movePlanToWatched(id) {
-                const planItem = plan.find(item => item.id === id);
-                if (!planItem) return;
-
-                // prevent duplicate in watched
-                const alreadyWatched = watched.some(w => w.title.toLowerCase() === planItem.title.toLowerCase());
-                if (alreadyWatched) {
-                    if (confirm(`"${planItem.title}" is already in watched. Remove from plan?`)) {
-                        plan = plan.filter(item => item.id !== id);
-                        refreshUI();
-                    }
-                    return;
-                }
-
-                // add to watched
-                const newWatched = {
-                    id: 'w_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                    title: planItem.title
-                };
-                watched.push(newWatched);
-                // remove from plan
-                plan = plan.filter(item => item.id !== id);
-                refreshUI();
-            }
-
-            // suggestion add -> add to plan (if not already there or in watched)
-            function addSuggestionToPlan(title) {
-                const trimmed = title.trim();
-                if (!trimmed) return;
-
-                const inWatched = watched.some(w => w.title.toLowerCase() === trimmed.toLowerCase());
-                if (inWatched) {
-                    alert(`"${trimmed}" is already in your watched list.`);
-                    return;
-                }
-                const inPlan = plan.some(p => p.title.toLowerCase() === trimmed.toLowerCase());
-                if (inPlan) {
-                    alert(`"${trimmed}" is already in your plan list.`);
-                    return;
-                }
-
-                const newItem = {
-                    id: 'p_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                    title: trimmed
-                };
-                plan.push(newItem);
-                refreshUI();
-            }
-
-            // ---------- EVENT DELEGATION ----------
-            function setupEventListeners() {
-                // watched list delete
-                watchedListEl.addEventListener('click', (e) => {
-                    const deleteBtn = e.target.closest('[data-action="delete-watched"]');
-                    if (deleteBtn) {
-                        const id = deleteBtn.getAttribute('data-id');
-                        if (id) deleteWatched(id);
-                    }
-                });
-
-                // plan list actions
-                planListEl.addEventListener('click', (e) => {
-                    const moveBtn = e.target.closest('[data-action="move-to-watched"]');
-                    if (moveBtn) {
-                        const id = moveBtn.getAttribute('data-id');
-                        if (id) movePlanToWatched(id);
-                        return;
-                    }
-
-                    const deleteBtn = e.target.closest('[data-action="delete-plan"]');
-                    if (deleteBtn) {
-                        const id = deleteBtn.getAttribute('data-id');
-                        if (id) deletePlan(id);
-                    }
-                });
-
-                // suggestions container click (add to plan)
-                suggestionsContainer.addEventListener('click', (e) => {
-                    const addBtn = e.target.closest('[data-action="add-suggestion"]');
-                    if (addBtn) {
-                        const title = addBtn.getAttribute('data-title');
-                        if (title) addSuggestionToPlan(title);
-                    }
-                });
-
-                // Add watched button + enter key
-                const watchedInput = document.getElementById('watchedInput');
-                const addWatchedBtn = document.getElementById('addWatchedBtn');
-                addWatchedBtn.addEventListener('click', () => {
-                    if (addWatched(watchedInput.value)) {
-                        watchedInput.value = '';
-                        watchedInput.focus();
-                    }
-                });
-                watchedInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (addWatched(watchedInput.value)) {
-                            watchedInput.value = '';
-                            watchedInput.focus();
-                        }
-                    }
-                });
-
-                // Add plan button + enter key
-                const planInput = document.getElementById('planInput');
-                const addPlanBtn = document.getElementById('addPlanBtn');
-                addPlanBtn.addEventListener('click', () => {
-                    if (addPlan(planInput.value)) {
-                        planInput.value = '';
-                        planInput.focus();
-                    }
-                });
-                planInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (addPlan(planInput.value)) {
-                            planInput.value = '';
-                            planInput.focus();
-                        }
-                    }
-                });
-            }
-
-            // ---------- INITIALIZATION ----------
-            function init() {
-                loadData();
-                // Ensure default suggestions are visible even if stored data missing some
-                // (but suggestions are auto-filtered)
-                renderWatched();
-                renderPlan();
-                renderSuggestions();
-                updateCounts();
-                setupEventListeners();
-                // make sure any lingering storage is consistent
-                saveData();
-            }
-
-            // start the app
-            init();
         })();
+
+        async function loadUserList() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseClient
+                .from('anime_list').select('*').order('inserted_at', { ascending: true });
+            if (error) { console.error(error); return; }
+            animeItems = data || [];
+            renderAll();
+        }
+
+        async function addAnime(title, status) {
+            if (!currentUser) return;
+            const trimmed = title.trim();
+            if (!trimmed) return;
+            const exists = animeItems.some(i => i.title.toLowerCase() === trimmed.toLowerCase());
+            if (exists) { alert(`"${trimmed}" is already in your list.`); return; }
+
+            const { error } = await supabaseClient
+                .from('anime_list')
+                .insert({ title: trimmed, status, user_id: currentUser.id });
+            if (error) { alert(error.message); return; }
+            await loadUserList();
+        }
+
+        async function deleteAnime(id) {
+            const { error } = await supabaseClient.from('anime_list').delete().eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadUserList();
+        }
+
+        async function moveToWatched(id) {
+            const { error } = await supabaseClient
+                .from('anime_list').update({ status: 'watched' }).eq('id', id);
+            if (error) { alert(error.message); return; }
+            await loadUserList();
+        }
+
+        function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        function renderAll() {
+            const watched = animeItems.filter(i => i.status === 'watched');
+            const plan = animeItems.filter(i => i.status === 'plan_to_watch');
+
+            document.getElementById('watchedCount').textContent = watched.length;
+            document.getElementById('planCount').textContent = plan.length;
+
+            const wl = document.getElementById('watchedList');
+            wl.innerHTML = watched.length === 0
+                ? `<div class="empty-message">✨ no anime watched yet — add some!</div>`
+                : watched.map(i => `
+                    <li class="anime-item">
+                        <span class="item-title">📖 ${escapeHtml(i.title)}</span>
+                        <div class="item-actions">
+                            <button class="icon-btn delete-btn" onclick="deleteAnime(${i.id})">🗑️</button>
+                        </div>
+                    </li>`).join('');
+
+            const pl = document.getElementById('planList');
+            pl.innerHTML = plan.length === 0
+                ? `<div class="empty-message">📭 nothing planned — add what you want to watch</div>`
+                : plan.map(i => `
+                    <li class="anime-item">
+                        <span class="item-title">⏳ ${escapeHtml(i.title)}</span>
+                        <div class="item-actions">
+                            <button class="icon-btn watched-btn" onclick="moveToWatched(${i.id})">✅</button>
+                            <button class="icon-btn delete-btn" onclick="deleteAnime(${i.id})">🗑️</button>
+                        </div>
+                    </li>`).join('');
+
+            renderSuggestions();
+        }
+
+        function renderSuggestions() {
+            const container = document.getElementById('suggestionsContainer');
+            const existing = new Set(animeItems.map(i => i.title.toLowerCase().trim()));
+            const available = SUGGESTION_POOL.filter(s => !existing.has(s.title.toLowerCase().trim()));
+
+            if (available.length === 0) {
+                container.innerHTML = `<div class="empty-message" style="width:100%;">🎉 you've added all suggestions!</div>`;
+                return;
+            }
+            container.innerHTML = available.map(s => `
+                <div class="suggestion-chip">
+                    <span>${escapeHtml(s.title)}</span>
+                    <span style="font-size:0.75rem; color:#9a8476;">${s.genre}</span>
+                    <button class="add-suggestion-btn" onclick="addSuggestion('${escapeHtml(s.title).replace(/'/g, "\\'")}')">+</button>
+                </div>`).join('');
+        }
+
+        function addSuggestion(title) { addAnime(title, 'plan_to_watch'); }
+
+        document.getElementById('addWatchedBtn').addEventListener('click', () => {
+            const inp = document.getElementById('watchedInput');
+            addAnime(inp.value, 'watched').then(() => inp.value = '');
+        });
+        document.getElementById('watchedInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addWatchedBtn').click(); }
+        });
+
+        document.getElementById('addPlanBtn').addEventListener('click', () => {
+            const inp = document.getElementById('planInput');
+            addAnime(inp.value, 'plan_to_watch').then(() => inp.value = '');
+        });
+        document.getElementById('planInput').addEventListener('keypress', e => {
+            if (e.key === 'Enter') { e.preventDefault(); document.getElementById('addPlanBtn').click(); }
+        });
     </script>
 </body>
 </html>

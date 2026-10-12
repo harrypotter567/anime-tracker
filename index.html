@@ -8,59 +8,77 @@
 <style>
 :root {
   --ink: #2e241f; --ink-soft: #735f54; --ink-faint: #a28d80;
-  --card-bg: rgba(255,255,255,0.72); --card-border: rgba(255,240,230,0.9);
+  --card-bg: rgba(255,255,255,0.78);
+  --card-border: rgba(255,240,230,0.9);
   --accent-1: #c6937a; --accent-2: #8b5e48;
   --glow-warm: rgba(198,147,122,0.35); --star: #e5a93b;
 }
 * { margin:0; padding:0; box-sizing:border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+
 body {
   min-height:100vh; padding:2rem 1.5rem;
   display:flex; flex-direction:column; align-items:center;
   position:relative; overflow-x:hidden;
-  background: linear-gradient(135deg, #fdf4ee 0%, #f5e6d8 40%, #ecd3bf 100%);
+  background: #fdf4ee;
   color: var(--ink);
 }
-body::before {
-  content:''; position:fixed; top:-20%; right:-10%; width:70vh; height:70vh;
-  background: radial-gradient(circle, rgba(255,200,150,0.55) 0%, rgba(255,190,140,0.25) 40%, transparent 70%);
-  border-radius:50%; pointer-events:none; z-index:0;
-  animation: floatSlow 12s ease-in-out infinite;
+
+/* ---------- ANIME VIDEO BACKGROUND ---------- */
+#anime-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: -2;
+  pointer-events: none;
 }
+#anime-bg video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  opacity: 0.45;                /* Dim so UI stays readable */
+  filter: saturate(1.15) brightness(0.85) blur(0.5px);
+}
+/* Fallback gradient if video fails */
+#anime-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #fdf4ee 0%, #f5e6d8 40%, #ecd3bf 100%);
+  z-index: -1;
+}
+
+/* Soft warm overlay for readability */
 body::after {
-  content:''; position:fixed; bottom:-20%; left:-10%; width:60vh; height:60vh;
-  background: radial-gradient(circle, rgba(200,180,220,0.35) 0%, rgba(180,160,210,0.15) 45%, transparent 70%);
-  border-radius:50%; pointer-events:none; z-index:0;
-  animation: floatSlow 15s ease-in-out infinite reverse;
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(253, 244, 238, 0.55) 0%,
+    rgba(245, 230, 216, 0.45) 50%,
+    rgba(236, 211, 191, 0.55) 100%);
+  z-index: -1;
+  pointer-events: none;
 }
-.petal {
-  position:fixed; width:12px; height:12px;
-  background: radial-gradient(circle, #ffc8b0 0%, #e89a7a 100%);
-  border-radius: 50% 0 50% 0; opacity:0.35;
-  pointer-events:none; z-index:1;
-  animation: driftDown linear infinite;
-}
-@keyframes driftDown {
-  0% { transform: translateY(-10vh) rotate(0deg); opacity:0; }
-  10% { opacity:0.4; } 90% { opacity:0.4; }
-  100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
-}
-@keyframes floatSlow {
-  0%,100% { transform: translate(0,0) scale(1); }
-  50% { transform: translate(-20px,20px) scale(1.05); }
-}
+
 .app-container {
   position:relative; z-index:2; max-width:1300px; width:100%;
   background: var(--card-bg);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
   border-radius:3rem; padding:2rem 2rem 2.5rem;
-  box-shadow: 0 25px 60px -20px rgba(120,80,60,0.25), 0 8px 24px -8px rgba(120,80,60,0.15), inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow: 0 25px 60px -20px rgba(120,80,60,0.35), 0 8px 24px -8px rgba(120,80,60,0.2), inset 0 1px 0 rgba(255,255,255,0.9);
   border: 1px solid var(--card-border);
 }
 h1 {
   font-size:2.6rem; font-weight:700; letter-spacing:-0.02em;
   display:flex; align-items:center; gap:12px; margin-bottom:0.4rem;
-  text-shadow: 0 2px 12px rgba(198,147,122,0.2);
+  text-shadow: 0 2px 12px rgba(198,147,122,0.3);
 }
 h1 span {
   background: linear-gradient(135deg, #f5d3bf 0%, #e8b89c 100%);
@@ -84,17 +102,17 @@ h1 span {
 }
 .column { display:flex; flex-direction:column; gap:1.5rem; }
 .card {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-radius:2rem; padding:1.6rem 1.6rem 1.9rem;
-  box-shadow: 0 15px 35px -12px rgba(120,80,60,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
-  border: 1px solid rgba(255,240,230,0.9);
+  box-shadow: 0 15px 35px -12px rgba(120,80,60,0.2), inset 0 1px 0 rgba(255,255,255,0.95);
+  border: 1px solid rgba(255,240,230,0.95);
   transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.3s;
 }
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 25px 50px -15px rgba(120,80,60,0.25), inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow: 0 25px 50px -15px rgba(120,80,60,0.3), inset 0 1px 0 rgba(255,255,255,0.95);
 }
 .card h2 {
   font-size:1.4rem; font-weight:700; margin-bottom:1.2rem;
@@ -105,7 +123,7 @@ h1 span {
 .add-form input {
   flex:1; padding:0.85rem 1.2rem; border-radius:50px;
   border:1.5px solid rgba(227,217,209,0.9);
-  background: rgba(254,252,251,0.9);
+  background: rgba(254,252,251,0.95);
   font-size:0.95rem; outline:none;
   transition: all 0.25s; min-width:140px; color: var(--ink);
 }
@@ -143,7 +161,7 @@ h1 span {
 .anime-item {
   display:flex; flex-direction:column; gap:6px;
   padding: 1rem 1.3rem;
-  background: linear-gradient(135deg, rgba(252,248,245,0.95) 0%, rgba(248,240,234,0.95) 100%);
+  background: linear-gradient(135deg, rgba(255,252,250,0.95) 0%, rgba(252,244,238,0.95) 100%);
   border-radius: 1.4rem;
   border: 1px solid rgba(240,228,220,0.9);
   transition: all 0.25s cubic-bezier(0.2,0.8,0.2,1);
@@ -200,7 +218,7 @@ h1 span {
 .empty-message {
   color: var(--ink-faint); font-style:italic; padding:1rem 0.5rem;
   text-align:center;
-  background: linear-gradient(135deg, rgba(250,246,242,0.9), rgba(244,237,232,0.9));
+  background: linear-gradient(135deg, rgba(250,246,242,0.95), rgba(244,237,232,0.95));
   border-radius:40px; font-size:0.95rem;
   border: 1.5px dashed rgba(221,208,198,0.9);
 }
@@ -256,7 +274,7 @@ h1 span {
 }
 .user-bar .email {
   color: var(--ink-soft); font-size:0.9rem; font-weight:500;
-  padding:0.4rem 0.9rem; background: rgba(255,255,255,0.6);
+  padding:0.4rem 0.9rem; background: rgba(255,255,255,0.75);
   border-radius:40px; border: 1px solid rgba(240,228,220,0.9);
 }
 .user-bar .logout-btn {
@@ -274,11 +292,11 @@ h1 span {
 .auth-container {
   position:relative; z-index:2; max-width:440px;
   margin:4rem auto;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
   padding:2.75rem 2.25rem; border-radius:2.5rem;
-  box-shadow: 0 30px 60px -20px rgba(120,80,60,0.3), inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow: 0 30px 60px -20px rgba(120,80,60,0.35), inset 0 1px 0 rgba(255,255,255,0.95);
   border: 1px solid var(--card-border); text-align:center;
   animation: authFade 0.5s cubic-bezier(0.2,0.8,0.2,1);
 }
@@ -291,7 +309,7 @@ h1 span {
 .auth-container input {
   width:100%; padding:0.9rem 1.2rem; margin-bottom:14px;
   border-radius:50px; border:1.5px solid rgba(227,217,209,0.9);
-  background: rgba(254,252,251,0.9);
+  background: rgba(254,252,251,0.95);
   font-size:0.95rem; outline:none; transition: all 0.25s; color: var(--ink);
 }
 .auth-container input:focus {
@@ -327,15 +345,16 @@ h1 span {
 .auth-success { color:#32643b; font-size:0.85rem; margin-top:10px; }
 .loading {
   position:relative; z-index:2; text-align:center;
-  color: var(--ink-soft); padding:3rem; font-size:1.1rem;
-  font-style:italic; animation: pulse 1.5s ease-in-out infinite;
+  color: white; padding:3rem; font-size:1.1rem;
+  font-style:italic; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  animation: pulse 1.5s ease-in-out infinite;
 }
 @keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
 
 /* ---------- MODAL ---------- */
 .modal-overlay {
   position:fixed; inset:0;
-  background: rgba(46,36,31,0.45);
+  background: rgba(46,36,31,0.55);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   display:flex; align-items:center; justify-content:center;
   z-index:1000; padding:1rem;
@@ -346,7 +365,7 @@ h1 span {
   background: linear-gradient(135deg, #ffffff 0%, #fdf8f4 100%);
   border-radius:2rem; padding:2rem 2rem 1.75rem;
   max-width:480px; width:100%;
-  box-shadow: 0 40px 80px -20px rgba(46,36,31,0.4);
+  box-shadow: 0 40px 80px -20px rgba(46,36,31,0.45);
   border: 1px solid rgba(255,240,230,0.9);
   animation: modalIn 0.35s cubic-bezier(0.2,0.8,0.2,1);
   max-height: 90vh; overflow-y: auto;
@@ -428,20 +447,12 @@ h1 span {
 </head>
 <body>
 
-<script>
-(function createPetals() {
-  const count = 12;
-  for (let i = 0; i < count; i++) {
-    const p = document.createElement('div');
-    p.className = 'petal';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (12 + Math.random() * 14) + 's';
-    p.style.animationDelay = (Math.random() * 12) + 's';
-    p.style.transform = `scale(${0.6 + Math.random() * 0.9})`;
-    document.body.appendChild(p);
-  }
-})();
-</script>
+<!-- ============ ANIME VIDEO BACKGROUND ============ -->
+<div id="anime-bg">
+  <video autoplay muted loop playsinline preload="auto">
+    <source src="bg.mp4" type="video/mp4">
+  </video>
+</div>
 
 <div id="loading-screen" class="loading">Loading...</div>
 
@@ -498,7 +509,6 @@ h1 span {
   <div class="footer-note">⏤ your personal anime tracker ⏤</div>
 </div>
 
-<!-- MODAL (hidden by default) -->
 <div id="modal-container"></div>
 
 <script>
@@ -562,7 +572,7 @@ async function handleAuthSubmit() {
   if (password.length < 6) { msg.textContent = 'Password must be at least 6 characters.'; return; }
 
   if (authMode === 'signup') {
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    const { error } = await supabaseClient.auth.signUp({ email, password });
     if (error) msg.textContent = error.message;
   } else {
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
